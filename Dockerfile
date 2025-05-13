@@ -1,19 +1,34 @@
-FROM node:20-alpine
+FROM node:20-alpine AS base
+
+FROM base AS builder
+
 WORKDIR /app
 
-ENV NODE_ENV production
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+COPY src ./src
+COPY public ./public
+COPY next.config.ts .
+COPY tsconfig.json .
+
 ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+RUN npm run build
 
-COPY --chown=nextjs:nodejs .next/standalone ./
-COPY --chown=nextjs:nodejs .next/static ./.next/static
+FROM base AS runner
 
+WORKDIR /app
 
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 USER nextjs
 
-ENV PORT 7242
-EXPOSE 7242
+COPY --from=builder /app/public ./public
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+ENV NEXT_TELEMETRY_DISABLED 1
 
 CMD ["node", "server.js"]
