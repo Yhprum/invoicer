@@ -11,6 +11,7 @@ COPY src ./src
 COPY public ./public
 COPY next.config.ts .
 COPY tsconfig.json .
+COPY postcss.config.mjs .
 
 ENV NEXT_TELEMETRY_DISABLED 1
 
