@@ -16,41 +16,47 @@ export async function generateInvoicePdf(invoice: Invoice, userSettings: UserSet
   // Set up document properties
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
-  const col1 = margin;
-  const col2 = pageWidth - margin;
+
+  // Define column positions
+  const colDate = margin;
+  const colDesc = margin + 25;
+  const colHours = pageWidth - margin - 60;
+  const colRate = pageWidth - margin - 35;
+  const colAmount = pageWidth - margin - 10;
+
   let y = margin;
 
   // Add title
-  doc.setFontSize(24);
+  doc.setFontSize(20);
   doc.setFont("helvetica", "bold");
-  doc.text("INVOICE", col1, y);
+  doc.text("INVOICE", margin, y);
   y += 10;
 
   // Add invoice number and date
-  doc.setFontSize(12);
+  doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Invoice #: ${invoice.number}`, col1, y);
+  doc.text(`Invoice #: ${invoice.number}`, margin, y);
   y += 6;
-  doc.text(`Date: ${format(parseISO(invoice.date), "MMMM d, yyyy")}`, col1, y);
+  doc.text(`Date: ${format(parseISO(invoice.date), "MMMM d, yyyy")}`, margin, y);
   y += 15;
 
   // Add from/to section
-  doc.setFontSize(14);
+  doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text("From:", col1, y);
+  doc.text("From:", margin, y);
   doc.text("To:", pageWidth / 2, y);
   y += 7;
 
   // From details
-  doc.setFontSize(12);
+  doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(userSettings.name, col1, y);
+  doc.text(userSettings.name, margin, y);
   y += 5;
 
   // Handle multiline address
   const fromAddressLines = userSettings.address.split("\n");
   fromAddressLines.forEach((line) => {
-    doc.text(line, col1, y);
+    doc.text(line, margin, y);
     y += 5;
   });
 
@@ -58,7 +64,7 @@ export async function generateInvoicePdf(invoice: Invoice, userSettings: UserSet
   y = y - 5 * fromAddressLines.length + 7;
 
   // To details
-  doc.text(invoice.clientName, pageWidth / 2, y);
+  doc.text(invoice.clientName, pageWidth / 2, y - 5);
   y += 5;
 
   if (invoice.clientAddress) {
@@ -77,13 +83,13 @@ export async function generateInvoicePdf(invoice: Invoice, userSettings: UserSet
 
   // Add table header
   doc.setFillColor(240, 240, 240);
-  doc.rect(col1, y, pageWidth - 2 * margin, 10, "F");
+  doc.rect(margin, y, pageWidth - 2 * margin, 10, "F");
   doc.setFont("helvetica", "bold");
-  doc.text("Date", col1 + 5, y + 6);
-  doc.text("Description", col1 + 30, y + 6);
-  doc.text("Hours", col2 - 65, y + 6);
-  doc.text("Rate", col2 - 40, y + 6);
-  doc.text("Amount", col2 - 20, y + 6);
+  doc.text("Date", colDate, y + 6);
+  doc.text("Description", colDesc, y + 6);
+  doc.text("Hours", colHours, y + 6, { align: "right" });
+  doc.text("Rate", colRate, y + 6, { align: "right" });
+  doc.text("Amount", colAmount, y + 6, { align: "right" });
   y += 10;
 
   // Add table rows
@@ -100,40 +106,41 @@ export async function generateInvoicePdf(invoice: Invoice, userSettings: UserSet
     const itemRate = formatCurrency(userSettings.hourlyRate);
     const itemAmount = formatCurrency(item.hours * userSettings.hourlyRate);
 
-    doc.text(itemDate, col1 + 5, y + 5);
+    doc.text(itemDate, colDate, y + 5);
 
-    // Handle long descriptions
-    const maxWidth = 100;
-    const descriptionLines = doc.splitTextToSize(item.description, maxWidth);
-    doc.text(descriptionLines, col1 + 30, y + 5);
+    // Handle long descriptions with proper width constraints
+    const descMaxWidth = colHours - colDesc - 10; // Limit description width
+    const descriptionLines = doc.splitTextToSize(item.description, descMaxWidth);
+    doc.text(descriptionLines, colDesc, y + 5);
 
-    doc.text(itemHours, col2 - 65, y + 5, { align: "right" });
-    doc.text(itemRate, col2 - 40, y + 5, { align: "right" });
-    doc.text(itemAmount, col2 - 20, y + 5, { align: "right" });
+    // Right-align numeric columns
+    doc.text(itemHours, colHours, y + 5, { align: "right" });
+    doc.text(itemRate, colRate, y + 5, { align: "right" });
+    doc.text(itemAmount, colAmount, y + 5, { align: "right" });
 
     // Adjust y position based on number of description lines
     y += Math.max(10, descriptionLines.length * 7);
   });
 
   // Add total section
-  doc.line(col1, y, col2, y);
+  doc.line(margin, y, pageWidth - margin, y);
   y += 7;
   doc.setFont("helvetica", "bold");
-  doc.text("Total Hours:", col2 - 65, y, { align: "right" });
-  doc.text(invoice.totalHours.toFixed(2), col2 - 40, y, { align: "right" });
+
+  // Position the totals with better spacing
+  const labelCol = colHours - 25; // Position for the labels
+  doc.text("Total Hours:", labelCol, y, { align: "right" });
+  doc.text(invoice.totalHours.toFixed(2), colHours, y, { align: "right" });
   y += 7;
-  doc.text("Total Amount:", col2 - 65, y, { align: "right" });
-  doc.text(formatCurrency(invoice.totalAmount), col2 - 20, y, { align: "right" });
+  doc.text("Total Amount:", labelCol, y, { align: "right" });
+  doc.text(formatCurrency(invoice.totalAmount), colAmount, y, { align: "right" });
 
   // Add payment status
-  y += 15;
-  doc.setFontSize(14);
   if (invoice.isPaid) {
+    y += 15;
+    doc.setFontSize(10);
     doc.setTextColor(0, 128, 0); // Green color for paid
     doc.text("PAID", pageWidth / 2, y, { align: "center" });
-  } else {
-    doc.setTextColor(0, 0, 0); // Black for unpaid
-    doc.text("Thank you for your business", pageWidth / 2, y, { align: "center" });
   }
 
   // Save the PDF
