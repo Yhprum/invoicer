@@ -1,52 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import type { TimeEntry, UserSettings, Invoice } from "@/lib/types"
-import { format } from "date-fns"
-import { generateInvoicePdf } from "@/lib/pdf-generator"
-import { formatCurrency } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { generateInvoicePdf } from "@/lib/pdf-generator";
+import type { Invoice, TimeEntry, UserSettings } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
+import { format } from "date-fns";
+import { useState } from "react";
 
 interface CreateInvoiceDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  selectedItems: TimeEntry[]
-  userSettings: UserSettings
-  onCreateInvoice: (invoice: Invoice, items: TimeEntry[]) => void
+  isOpen: boolean;
+  onClose: () => void;
+  selectedItems: TimeEntry[];
+  userSettings: UserSettings;
+  onCreateInvoice: (invoice: Invoice, items: TimeEntry[]) => void;
 }
 
-export default function CreateInvoiceDialog({
-  isOpen,
-  onClose,
-  selectedItems,
-  userSettings,
-  onCreateInvoice,
-}: CreateInvoiceDialogProps) {
-  const [invoiceNumber, setInvoiceNumber] = useState("")
-  const [clientName, setClientName] = useState("")
-  const [clientAddress, setClientAddress] = useState("")
-  const [isGenerating, setIsGenerating] = useState(false)
+export default function CreateInvoiceDialog({ isOpen, onClose, selectedItems, userSettings, onCreateInvoice }: CreateInvoiceDialogProps) {
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const totalHours = selectedItems.reduce((sum, item) => sum + item.hours, 0)
-  const totalAmount = totalHours * userSettings.hourlyRate
+  const totalHours = selectedItems.reduce((sum, item) => sum + item.hours, 0);
+  const totalAmount = totalHours * userSettings.hourlyRate;
 
   const handleCreateInvoice = async () => {
-    if (!invoiceNumber || !clientName) return
+    if (!invoiceNumber || !clientName) return;
 
-    setIsGenerating(true)
+    setIsGenerating(true);
 
     try {
-      const today = new Date()
+      const today = new Date();
       const newInvoice: Invoice = {
         id: Date.now().toString(),
         number: invoiceNumber,
@@ -58,25 +45,25 @@ export default function CreateInvoiceDialog({
         totalAmount,
         isPaid: false,
         createdAt: today.toISOString(),
-      }
+      };
 
       // Generate PDF
-      await generateInvoicePdf(newInvoice, userSettings)
+      await generateInvoicePdf(newInvoice, userSettings);
 
       // Save invoice and remove items from unbilled list
-      onCreateInvoice(newInvoice, selectedItems)
+      onCreateInvoice(newInvoice, selectedItems);
 
       // Reset and close
-      setInvoiceNumber("")
-      setClientName("")
-      setClientAddress("")
-      onClose()
+      setInvoiceNumber("");
+      setClientName("");
+      setClientAddress("");
+      onClose();
     } catch (error) {
-      console.error("Error generating invoice:", error)
+      console.error("Error generating invoice:", error);
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -154,5 +141,5 @@ export default function CreateInvoiceDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

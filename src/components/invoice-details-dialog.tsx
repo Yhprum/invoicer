@@ -1,27 +1,20 @@
-"use client"
+"use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { format, parseISO } from "date-fns"
-import type { Invoice, UserSettings } from "@/lib/types"
-import { formatCurrency } from "@/lib/utils"
-import { Download } from "lucide-react"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import type { Invoice, UserSettings } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
+import { Download } from "lucide-react";
 
 interface InvoiceDetailsDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  invoice: Invoice
-  userSettings: UserSettings
-  onTogglePaid: () => void
-  onDownload: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  invoice: Invoice;
+  userSettings: UserSettings;
+  onTogglePaid: () => void;
+  onDownload: () => void;
 }
 
 export default function InvoiceDetailsDialog({
@@ -38,7 +31,7 @@ export default function InvoiceDetailsDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             Invoice #{invoice.number}
-            <Badge variant={invoice.isPaid ? "success" : "secondary"}>{invoice.isPaid ? "Paid" : "Unpaid"}</Badge>
+            <Badge variant={invoice.isPaid ? "default" : "secondary"}>{invoice.isPaid ? "Paid" : "Unpaid"}</Badge>
           </DialogTitle>
           <DialogDescription>Created on {format(parseISO(invoice.date), "MMMM d, yyyy")}</DialogDescription>
         </DialogHeader>
@@ -111,5 +104,5 @@ export default function InvoiceDetailsDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

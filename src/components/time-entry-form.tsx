@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { CalendarIcon } from "lucide-react"
-import { format } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import type { TimeEntry } from "@/lib/types"
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import type { TimeEntry } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useState } from "react";
 
 interface TimeEntryFormProps {
-  onAddEntry: (entry: TimeEntry) => void
+  onAddEntry: (entry: TimeEntry) => void;
 }
 
 export default function TimeEntryForm({ onAddEntry }: TimeEntryFormProps) {
-  const today = new Date()
-  const [date, setDate] = useState<Date>(today)
-  const [description, setDescription] = useState("")
-  const [hours, setHours] = useState("")
+  const today = new Date();
+  const [date, setDate] = useState<Date>(today);
+  const [description, setDescription] = useState("");
+  const [hours, setHours] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!description || !hours || Number.parseFloat(hours) < 0) {
-      return
+      return;
     }
 
     const newEntry: TimeEntry = {
@@ -38,15 +38,15 @@ export default function TimeEntryForm({ onAddEntry }: TimeEntryFormProps) {
       description,
       hours: Number.parseFloat(hours),
       createdAt: new Date().toISOString(),
-    }
+    };
 
-    onAddEntry(newEntry)
+    onAddEntry(newEntry);
 
     // Reset form
-    setDate(today)
-    setDescription("")
-    setHours("")
-  }
+    setDate(today);
+    setDescription("");
+    setHours("");
+  };
 
   return (
     <Card>
@@ -60,10 +60,7 @@ export default function TimeEntryForm({ onAddEntry }: TimeEntryFormProps) {
             <Label htmlFor="date">Date</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
-                >
+                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
@@ -105,5 +102,5 @@ export default function TimeEntryForm({ onAddEntry }: TimeEntryFormProps) {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

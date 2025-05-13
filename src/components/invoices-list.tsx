@@ -1,53 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { format, parseISO } from "date-fns"
-import type { Invoice, UserSettings } from "@/lib/types"
-import InvoiceDetailsDialog from "./invoice-details-dialog"
-import { formatCurrency } from "@/lib/utils"
-import { Download, Eye } from "lucide-react"
-import { generateInvoicePdf } from "@/lib/pdf-generator"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { generateInvoicePdf } from "@/lib/pdf-generator";
+import type { Invoice, UserSettings } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
+import { Download, Eye } from "lucide-react";
+import { useState } from "react";
+import InvoiceDetailsDialog from "./invoice-details-dialog";
 
 interface InvoicesListProps {
-  invoices: Invoice[]
-  userSettings: UserSettings
+  invoices: Invoice[];
+  userSettings: UserSettings;
 }
 
 export default function InvoicesList({ invoices, userSettings }: InvoicesListProps) {
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const handleViewInvoice = (invoice: Invoice) => {
-    setSelectedInvoice(invoice)
-    setIsDetailsOpen(true)
-  }
+    setSelectedInvoice(invoice);
+    setIsDetailsOpen(true);
+  };
 
   const handleDownloadInvoice = async (invoice: Invoice) => {
     try {
-      await generateInvoicePdf(invoice, userSettings)
+      await generateInvoicePdf(invoice, userSettings);
     } catch (error) {
-      console.error("Error downloading invoice:", error)
+      console.error("Error downloading invoice:", error);
     }
-  }
+  };
 
   const togglePaidStatus = (invoice: Invoice) => {
     const updatedInvoices = invoices.map((inv) => {
       if (inv.id === invoice.id) {
-        return { ...inv, isPaid: !inv.isPaid }
+        return { ...inv, isPaid: !inv.isPaid };
       }
-      return inv
-    })
+      return inv;
+    });
 
-    localStorage.setItem("invoices", JSON.stringify(updatedInvoices))
+    localStorage.setItem("invoices", JSON.stringify(updatedInvoices));
 
     // Force re-render by updating the selected invoice if it's the one being toggled
     if (selectedInvoice && selectedInvoice.id === invoice.id) {
-      setSelectedInvoice({ ...selectedInvoice, isPaid: !selectedInvoice.isPaid })
+      setSelectedInvoice({ ...selectedInvoice, isPaid: !selectedInvoice.isPaid });
     }
-  }
+  };
 
   return (
     <>
@@ -68,9 +68,7 @@ export default function InvoicesList({ invoices, userSettings }: InvoicesListPro
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium">Invoice #{invoice.number}</h3>
-                      <Badge variant={invoice.isPaid ? "success" : "secondary"}>
-                        {invoice.isPaid ? "Paid" : "Unpaid"}
-                      </Badge>
+                      <Badge variant={invoice.isPaid ? "default" : "secondary"}>{invoice.isPaid ? "Paid" : "Unpaid"}</Badge>
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {format(parseISO(invoice.date), "MMM d, yyyy")} • {invoice.clientName}
@@ -103,5 +101,5 @@ export default function InvoicesList({ invoices, userSettings }: InvoicesListPro
         />
       )}
     </>
-  )
+  );
 }

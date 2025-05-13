@@ -1,34 +1,34 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { format, parseISO } from "date-fns"
-import type { TimeEntry, UserSettings, Invoice } from "@/lib/types"
-import CreateInvoiceDialog from "./create-invoice-dialog"
-import { formatCurrency } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import type { Invoice, TimeEntry, UserSettings } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
+import { useState } from "react";
+import CreateInvoiceDialog from "./create-invoice-dialog";
 
 interface UnbilledItemsProps {
-  items: TimeEntry[]
-  userSettings: UserSettings
-  onCreateInvoice: (invoice: Invoice, items: TimeEntry[]) => void
+  items: TimeEntry[];
+  userSettings: UserSettings;
+  onCreateInvoice: (invoice: Invoice, items: TimeEntry[]) => void;
 }
 
 export default function UnbilledItems({ items, userSettings, onCreateInvoice }: UnbilledItemsProps) {
-  const [selectedItems, setSelectedItems] = useState<TimeEntry[]>([])
-  const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false)
+  const [selectedItems, setSelectedItems] = useState<TimeEntry[]>([]);
+  const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false);
 
   const toggleItemSelection = (item: TimeEntry) => {
     if (selectedItems.some((selected) => selected.id === item.id)) {
-      setSelectedItems(selectedItems.filter((selected) => selected.id !== item.id))
+      setSelectedItems(selectedItems.filter((selected) => selected.id !== item.id));
     } else {
-      setSelectedItems([...selectedItems, item])
+      setSelectedItems([...selectedItems, item]);
     }
-  }
+  };
 
-  const totalHours = selectedItems.reduce((sum, item) => sum + item.hours, 0)
-  const totalAmount = totalHours * userSettings.hourlyRate
+  const totalHours = selectedItems.reduce((sum, item) => sum + item.hours, 0);
+  const totalAmount = totalHours * userSettings.hourlyRate;
 
   return (
     <>
@@ -39,9 +39,7 @@ export default function UnbilledItems({ items, userSettings, onCreateInvoice }: 
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No unbilled items yet. Add time entries to get started.
-            </div>
+            <div className="text-center py-8 text-muted-foreground">No unbilled items yet. Add time entries to get started.</div>
           ) : (
             <>
               <div className="space-y-4">
@@ -80,11 +78,7 @@ export default function UnbilledItems({ items, userSettings, onCreateInvoice }: 
                   <span>Total Amount:</span>
                   <span>{formatCurrency(totalAmount)}</span>
                 </div>
-                <Button
-                  className="w-full mt-4"
-                  disabled={selectedItems.length === 0}
-                  onClick={() => setIsCreateInvoiceOpen(true)}
-                >
+                <Button className="w-full mt-4" disabled={selectedItems.length === 0} onClick={() => setIsCreateInvoiceOpen(true)}>
                   Create Invoice
                 </Button>
               </div>
@@ -101,5 +95,5 @@ export default function UnbilledItems({ items, userSettings, onCreateInvoice }: 
         onCreateInvoice={onCreateInvoice}
       />
     </>
-  )
+  );
 }
