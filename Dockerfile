@@ -5,7 +5,7 @@ FROM base AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 COPY src ./src
 COPY public ./public
@@ -31,5 +31,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 ENV NEXT_TELEMETRY_DISABLED 1
+
+ENV PORT 7292
+EXPOSE 7292
 
 CMD ["node", "server.js"]

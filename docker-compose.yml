@@ -1,0 +1,9 @@
+services:
+  invoicer:
+    container_name: invoicer
+    build: .
+    ports:
+      - 7292:7292
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
