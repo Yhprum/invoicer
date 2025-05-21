@@ -50,9 +50,9 @@ export default function InvoiceDetailsDialog({
             </div>
           </div>
 
-          <div className="border rounded-md overflow-hidden">
+          <div className="border rounded-md max-h-[500px] overflow-y-auto">
             <table className="w-full text-sm">
-              <thead className="bg-muted">
+              <thead className="bg-muted sticky top-0 z-10">
                 <tr>
                   <th className="p-2 text-left">Date</th>
                   <th className="p-2 text-left">Description</th>
@@ -72,7 +72,7 @@ export default function InvoiceDetailsDialog({
                   </tr>
                 ))}
               </tbody>
-              <tfoot className="bg-muted/50 font-medium">
+              <tfoot className="bg-muted font-medium sticky bottom-0 z-10">
                 <tr className="border-t">
                   <td colSpan={3} className="p-2 text-right">
                     Total Hours:

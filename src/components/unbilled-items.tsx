@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import type { Invoice, TimeEntry, UserSettings } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
@@ -33,9 +34,14 @@ export default function UnbilledItems({ items, userSettings, onCreateInvoice }: 
   return (
     <>
       <Card>
-        <CardHeader>
-          <CardTitle>Unbilled Work</CardTitle>
-          <CardDescription>Select items to include in a new invoice</CardDescription>
+        <CardHeader className="flex flex-row justify-between">
+          <div>
+            <CardTitle>Unbilled Work</CardTitle>
+            <CardDescription>Select items to include in a new invoice</CardDescription>
+          </div>
+          <Button variant="outline" onClick={() => setSelectedItems(selectedItems.length === items.length ? [] : items)}>
+            Select all
+          </Button>
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
@@ -44,7 +50,7 @@ export default function UnbilledItems({ items, userSettings, onCreateInvoice }: 
             <>
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div key={item.id} className="flex items-start space-x-3 p-3 rounded-md border">
+                  <Label htmlFor={`item-${item.id}`} key={item.id} className="flex items-start space-x-3 p-3 rounded-md border">
                     <Checkbox
                       id={`item-${item.id}`}
                       checked={selectedItems.some((selected) => selected.id === item.id)}
@@ -59,7 +65,7 @@ export default function UnbilledItems({ items, userSettings, onCreateInvoice }: 
                       </div>
                       <p className="text-sm text-muted-foreground">{item.description}</p>
                     </div>
-                  </div>
+                  </Label>
                 ))}
               </div>
 
